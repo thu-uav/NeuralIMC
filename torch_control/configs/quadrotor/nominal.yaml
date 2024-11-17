@@ -1,0 +1,94 @@
+# Frame of the Crazyflie 2.1:
+# M1     M4         ^ x
+#    \ /            |
+#     +       y < -
+#    / \
+# M2     M3
+
+name: nominal
+
+# Common parameters
+g: 9.81
+dt: 0.02
+
+use_simple_dynamics: true
+motor_tc: 0.43
+
+control_mode: 'ctbr'
+control_freq: 50
+
+integrator: rk4 # euler or rk4
+
+# belows will NOT be used in simple dynamics
+
+# Rigid-body parameters
+mass: 0.03 # kg
+arm_length: 0.043 # m
+l2w_ratio: 1.471
+l2h_ratio: 0.793
+
+inertia_params:
+  - 1.4e-5
+  - 1.4e-5
+  - 2.17e-5
+center_of_mass: [0.0, 0.0, 0.0]
+drag_coeff: 0.2
+
+# Motor parameters
+motor_first_order: true
+motor_rot_dirs: [1., -1., 1., -1.] # 1 for CW, -1 for CCW
+motor_spread_angles:
+  - 0.78539816 # pi/4
+  - 2.35619449 # 3pi/4
+  - 3.92699082 # 5pi/4
+  - 5.49778714 # 7pi/4
+motor_kf: 2.88e-8
+motor_kappa: 0.025 # km / kf
+max_thrust2weight: 1.934
+
+# Control parameters
+Kp: [37.14, 37.14, 1.15]
+Kd: [0., 0., 0.]
+
+# dynamics randomization
+dynamics_randomization:
+  mass:
+    scale:
+    min: 
+    max:
+  arm_length:
+    scale:
+    min: 
+    max: 
+  l2w_ratio:
+    scale: 
+    min: 
+    max: 
+  l2h_ratio:
+    scale: 
+    min: 
+    max: 
+  center_of_mass:
+    scale:
+    min: 
+    max: 
+  motor_kf:
+    scale: 
+    min: 
+    max: 
+  max_thrust2weight:
+    scale: 
+    min: 
+    max: 
+  motor_kappa:
+    scale: 
+    min: 
+    max: 
+  motor_tc:
+    scale: 
+    min:
+    max:
+  Kp:
+    scale: #[1., 10.]
+    min: 
+    max: 

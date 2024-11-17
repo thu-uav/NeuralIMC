@@ -1,0 +1,46 @@
+name: mppi
+algo_name: mppi
+
+lam: 0.05 # temparature
+H: 40 # horizon
+N: 1024 # number of samples
+K_delay: 1
+sim_K_delay : 1
+
+sample_std: [0.25, 0.7, 0.7, 0.7] # standard deviation for sampling: [thrust (unit: hovering thrust), omega (unit: rad/s)]
+gamma_mean: 1.0 # learning rate
+gamma_Sigma: 0. # learning rate
+omega_gain: 40. # gain of the low-level controller
+discount: 0.99 # discount factor in MPPI
+a_min: [0., -5., -5., -2.] # bounds of sampling action: [thrust, omega (unit: rad/s)]
+a_max: [0., 5., 5., 2.]
+
+# reward functions
+alpha_p: 10.0
+alpha_w: 0.0
+alpha_a: 0.0
+alpha_R: 10.0
+alpha_v: 0.0
+alpha_z : 0.0
+alpha_yaw : 0.0
+
+pos_noise_std: 0.005
+vel_noise_std: 0.005
+quat_noise_std: 0.01
+
+# unused
+obs:
+  use_body_frame: false
+  use_rot_matrix: false
+  bodyrate: true
+  extrinsics: false
+  intrinsics: false
+  short_history_len: 1
+  long_history_len: 0
+  state_content: [base_pos, base_rot, action] # only used for legged robots
+  history_content: [state, action]
+  dyn_err_content: []
+  short_diff: false
+  short_int: false
+  long_diff: false
+  long_int: false

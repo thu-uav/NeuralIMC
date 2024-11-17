@@ -1,0 +1,104 @@
+defaults:
+  - quadrotor: train_random
+  - controller: ours
+  - task: track_zigzag
+  - task_deploy: ${oc.select:..task}
+  - predictive_model
+  - _self_
+
+seed: 1
+for_deploy: false
+
+load_from:
+
+exp_name: 
+render: false
+plot: false
+
+num_envs: 1024
+num_eval_envs: 128
+device: 'cuda'
+auto_reset: true
+only_eval: false
+early_termination: true
+
+pred_model_noise: 0
+
+random_dynamics: true
+random_init: true
+
+latency_obs: 0.04 # in seconds
+latency_cmd: 0.02 # in seconds
+
+l1ac:
+  mass: 0.03254
+  pseudo_adapt: false
+  A_vx: -6.
+  A_vy: -6
+  A_vz: -10.
+  wc_f: 0.4
+
+noise:
+  obs_std: 0.0007
+  linear_std:
+  angular_std:
+
+action_lpf:
+  enable: false
+  order: 1
+  cutoff_freq: 4.
+
+reward:
+  smooth: 
+    cmd: 0.5
+    acc: 
+    ang_vel: #0.3
+  min:
+    cmd: 0.5
+    vel: 
+    ang_vel:
+  alive: 
+
+wind:
+  enable: false
+  randomize: true
+  random_walk: true
+  default: [0., 0., 0.]
+  min: [-3.3, -3.3, -3.3]
+  max: [3.3, 3.3, 3.3]
+  use_l1ac: false
+  l1ac: ${oc.select:..l1ac}
+
+eval:
+  quadrotor:
+
+hydra:
+  job:
+    config:
+      override_dirname:
+        exclude_keys:
+          - device
+          - load_from
+          - controller
+          - quadrotor
+          - task
+          - controller.total_steps
+          - wandb.group
+          - wandb.entity
+          - wandb.mode
+          - wandb.run_name
+          - wandb.project
+          - controller.ckpt_dir
+          - predictive_model.ckpt
+
+wandb:
+  group: ${oc.select:..quadrotor.name}_${oc.select:..task.name}_${oc.select:..controller.name}
+  run_name: ${oc.select:..quadrotor.name}_${oc.select:..task.name}_${oc.select:..controller.name}_seed${oc.select:..seed}
+  job_type: train
+  entity: 
+  project: "torchctrl"
+  mode: online # set to 'disabled' when debugging locally
+  run_id: 
+  run_path:
+  monitor_gym: True
+  tags: 

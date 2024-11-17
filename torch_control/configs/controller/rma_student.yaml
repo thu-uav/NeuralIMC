@@ -1,0 +1,44 @@
+defaults:
+  - ppo
+  - _self_
+
+name: rma_student
+algo_name: rma_student # use ppo to train the controller
+
+train_iterations: 500
+rma_rollout_length: 256
+
+obs:
+  use_body_frame: false
+  use_rot_matrix: true
+  bodyrate: false
+  extrinsics: true
+  intrinsics: true
+  short_history_len: 1
+  long_history_len: 0
+  history_content: [state, action]
+  dyn_err_content: []
+  short_diff: false
+  short_int: false
+  long_diff: false
+  long_int: false
+
+feature_extractor:
+  task_obs:
+    net: identity
+    output_dim: 
+  state_obs:
+    net: identity
+    output_dim:
+  short_history_obs:
+    net: identity
+    output_dim:
+  long_history_obs:
+    net: 
+    output_dim:
+  ext_obs: 
+    net: identity
+    output_dim: 
+  int_obs:
+    net: mlp
+    output_dim: 16

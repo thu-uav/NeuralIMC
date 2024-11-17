@@ -1,0 +1,40 @@
+name: setpoint
+
+max_time: 10 # in seconds
+
+# control limits
+action:
+  offset_g: true
+  thrust: 3 #1.7 #[0.,19.62] # m/s^2
+  roll_rate: 2.0 #0.5 #[-180.,180.] # deg/s
+  pitch_rate: 2.0 #0.5 #[-180.,180.] # deg/s
+  yaw_rate: 1.0 #0.5 #[-180.,180.] # deg/s
+
+safety:
+  x: [-5., 5.]
+  y: [-5., 5.]
+  z: [-5., 5.]
+
+# init state randomization
+state_randomization:
+  pos:
+    min: [-2., -2., 0.0]
+    max: [2., 2., 2.0]
+  vel:
+    min:
+    max:
+  acc:
+    min:
+    max:
+  ang: # in degree
+    min:
+    max: [10., 10., 180.]
+  ang_vel: # in degree
+    min:
+    max:
+  body_torque:
+    min:
+    max:
+  motor_angvel:
+    min:
+    max:

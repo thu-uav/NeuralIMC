@@ -1,0 +1,121 @@
+defaults:
+  - _self_
+
+name: ppo
+algo_name: ppo
+
+total_steps: 20_000_000
+rollout_length: 128 # if hz = 40, then 64 steps = 1.6s
+
+save_dir:
+ckpt_dir:
+
+log_interval: 1
+save_interval: 5
+eval_interval: 5
+
+normalize_obs: false
+normalize_value: true
+normalize_advantages: true
+
+# ppo hyper-parameters
+ppo_epochs: 5
+minibatch_size: 1024
+
+clip_ratio: 0.2
+use_clipped_value_loss: true
+use_huber_loss: false
+huber_delta: 10
+
+entropy_coef: 0.01
+critic_loss_coef: 0.5
+max_grad_norm: 1.
+
+gae_lambda: 0.95
+gamma: 0.97
+
+lr: 5e-4
+lr_eps: 1e-5
+weight_decay: 0.0
+betas: [0.9, 0.999]
+
+reward_scaling: 1.
+
+share_feature_extractor: true
+
+obs:
+  use_body_frame: false
+  use_rot_matrix: true
+  bodyrate: false
+  extrinsics: true
+  intrinsics: false
+  short_history_len: 1
+  long_history_len: 0
+  state_content: [base_pos, base_rot, action] # only used for legged robots
+  history_content: [state, action]
+  dyn_err_content: []
+  short_diff: false
+  short_int: false
+  long_diff: false
+  long_int: false
+
+feature_extractor:
+  task_obs:
+    net: identity
+    output_dim: 
+  state_obs:
+    net: identity
+    output_dim:
+  short_history_obs:
+    net: identity
+    output_dim:
+  long_history_obs:
+    net: 
+    output_dim:
+  ext_obs: 
+    net: 
+    output_dim: 
+  int_obs:
+    net: 
+    output_dim:
+
+chunking:
+  chunk_size: 10
+  chunk_weight: 0.01
+  chunk_weight_order: 1 # 0 means the oldest action is the most important, 1 means the most recent action is the most important
+  temporal_agg: true # whether to aggregate the chunked elements temporally
+  action_chunk: true # whether to chunk the action
+  value_chunk: true # whether to chunk the value
+
+# model hyper-parameters
+actor:
+  hidden_sizes: [128, 128, 128]
+  activation: Tanh
+  output_activation: None
+  use_layer_norm: false
+  use_spectral_norm: false
+  
+  # action distribution
+  use_sb3_dist: true
+  independent_std: true
+  squash_action: true
+  transform_logp: false
+  log_std_init: -2.0
+
+  feature_extractor: ${oc.select:..feature_extractor}
+  feature_extractor_override:
+
+critic:
+  hidden_sizes: [128, 128, 128]
+  activation: Tanh
+  use_layer_norm: false
+  use_spectral_norm: false
+
+  feature_extractor: ${oc.select:..feature_extractor}
+  feature_extractor_override:
+    ext_obs: 
+      net: identity
+      output_dim: 3
+    int_obs:
+      net: mlp
+      output_dim: 8

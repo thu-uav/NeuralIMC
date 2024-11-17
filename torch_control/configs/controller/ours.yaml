@@ -1,0 +1,43 @@
+defaults:
+  - ppo
+  - _self_
+
+name: neuralimc
+algo_name: ppo # use ppo to train the controller
+
+l1ac_regularization_coef: 0.0
+
+obs:
+  use_body_frame: false
+  use_rot_matrix: true
+  bodyrate: false
+  extrinsics: true
+  intrinsics: false
+  short_history_len: 1
+  long_history_len: 0
+  history_content: [state, action, ref_err, dyn_err]
+  dyn_err_content: [pos, vel, rot]
+  short_diff: false
+  short_int: false
+  long_diff: false
+  long_int: false
+
+feature_extractor:
+  task_obs:
+    net: identity
+    output_dim: 
+  state_obs:
+    net: identity
+    output_dim:
+  short_history_obs:
+    net: identity
+    output_dim:
+  long_history_obs:
+    net: complex_tcn
+    output_dim: 16
+  ext_obs: 
+    net: 
+    output_dim: 
+  int_obs:
+    net: 
+    output_dim: 16

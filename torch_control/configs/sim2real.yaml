@@ -1,0 +1,79 @@
+defaults:
+  - config_quadrotor
+  - _self_
+
+seed_list: [0, 1, 3] #, 1, 2, 3, 4]
+eval_with_policy: false # special argument for evaluating predictive models
+eval_horizon: 
+pred_ckpt: 
+
+mask_bodyrate: false
+
+obs_lpf_cutoff: # 80
+cmd_lpf_cutoff: # 40
+
+num_envs: 1
+num_eval_envs: 1
+
+check_l1ac: false
+use_mocap: true
+
+eval:
+  seeds: [0]
+  max_t: 10
+  use_real_t: false
+  init:
+    position:
+      min: [-1.0, -1.0, 0.3]
+      max: [1.0, 1.0, 1.3]
+    angle:
+      min: [-10.0, -10.0, -180.0]
+      max: [10.0, 10.0, 180.0]
+    linear_velocity:
+      min: 
+      max:
+    angular_velocity:
+      min:
+      max: 
+
+init:
+  kalman_warmup: 3.0
+  takeoff_height: 1.0
+  takeoff_vel: 0.2
+  landing_height: 0.2
+  landing_vel: 0.1
+  breaking_time: 2.0
+
+default_controller:
+  name: pid
+  pid:
+    kp_pos_xy: 10.0
+    kp_pos_z: 11.0
+    kd_pos_xy: 5.0
+    kd_pos_z: 7.0
+    ki_pos_xy: 1.6
+    ki_pos_z: 1.2
+    int_limit_xy: 1.5
+    int_limit_z: 2.5
+    kp_rot: 8.0
+    kp_yaw: 9.0
+    # l1ac
+    use_l1: true
+    mass: 0.03254
+    pseudo_adapt: false
+    A_vx: -6.
+    A_vy: -6.
+    A_vz: -10.
+    wc_f: 0.4
+
+wandb:
+  group: ${oc.select:..quadrotor.name}_${oc.select:..task.name}_${oc.select:..controller.name}
+  run_name: ${oc.select:..quadrotor.name}_${oc.select:..task.name}_${oc.select:..controller.name}_${oc.select:..seed}
+  job_type: deploy
+  entity: 
+  project: "torchctrl"
+  mode: disabled # set to 'disabled' when debugging locally
+  run_id: 
+  run_path:
+  monitor_gym: True
+  tags: 

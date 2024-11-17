@@ -1,0 +1,84 @@
+predictive_model:
+  enable: false
+  train: false
+
+  ckpt: 
+
+  buffer_size: 50_000
+  use_priority: true
+  num_minibatch: 128
+  minibatch_size: 2048
+  horizon: 4
+  num_iteration: 4
+
+  no_random_steps: 0
+
+  action_coef: 0.0
+  smooth_coef: 0.0
+  rot_mode: 'quat'
+
+  arch: rec_mlp # rec_mlp
+  loss: mse # mse
+
+  repeat:
+    lr:
+
+    train_horizon:
+
+  # model hyper-parameters for different architectures
+  rec_mlp:
+    lr: 5e-4
+
+    train_horizon: 4
+
+    smooth_coef: ${predictive_model.smooth_coef}
+    action_coef: ${predictive_model.action_coef}
+
+    detach_xt: true
+    residual: true
+    sn: false
+    xu_enc_hidden_dim: 64
+    xu_enc_hidden_depth: 1
+    x_dec_hidden_dim: 64
+    x_dec_hidden_depth: 1
+    clip_grad_norm: 1.0
+    rec_type: lstm # lstm or gru
+    rec_latent_dim: 256
+    rec_num_layers: 1
+
+  transformer:
+    lr: 5e-4
+
+    train_horizon: 40
+    
+    smooth_coef: ${predictive_model.smooth_coef}
+    action_coef: ${predictive_model.action_coef}
+    
+    max_context_length: 4
+    hidden_size: 128
+    action_tanh: true
+    clip_grad_norm: 1.0
+    abs_time_embed: false
+    gpt2_cfg:
+      n_layer: 2
+      n_head: 4
+      n_inner: # 4 * hidden_size
+      activation_function: relu
+      n_positions: 512
+      resid_pdrop: 0.1
+      attn_pdrop: 0.1
+
+  diffusion:
+    lr: 5e-4
+
+    train_horizon: 4
+
+    smooth_coef: ${predictive_model.smooth_coef}
+    action_coef: ${predictive_model.action_coef}
+
+    obs_horizon: 
+    action_horizon:
+    pred_horizon:
+    num_train_timesteps:
+    num_inference_timesteps:
+    ema_power:

@@ -1,0 +1,85 @@
+name: track
+
+max_time: 10 # in seconds
+warmup_steps: 0
+
+# control limits
+action:
+  offset_g: true
+  thrust: 3 #1.7 #[0.,19.62] # m/s^2
+  roll_rate: 2.0 #0.5 #[-180.,180.] # deg/s
+  pitch_rate: 2.0 #0.5 #[-180.,180.] # deg/s
+  yaw_rate: 1.0 #0.5 #[-180.,180.] # deg/s
+
+safety:
+  x: [-5., 5.]
+  y: [-5., 5.]
+  z: [-5., 5.]
+
+trajectory:
+  type: chained_poly
+  origin: 
+  future_steps: 10
+  step_size: 3
+  distance_threshold: 5.0
+  line:
+    height: 0.0
+    line_length: 1.0
+    period: 1.0
+  chained_poly:
+    use_y: true
+    min_dt: 1.5
+    max_dt: 4.0
+    degree: 5
+  circle:
+    height: 0.0
+    radius: 0.5
+    period: 2.0
+  square:
+    height: 0.0
+    x_length: 1.0
+    y_length: 0.5
+    x_period: 1.0
+    y_period: 0.5
+  star:
+    num_points: 5
+    speed: [0.8, 2.2]
+    radius: 1.0
+  poly:
+    use_y: true 
+    t_end: 10.0
+    min_dt: 0.5
+    max_dt: 2.0
+    degree: 5
+  zigzag:
+    max_D: [1.0, 1.0, 0.0]
+    min_dt: 0.5
+    max_dt: 1.5
+    diff_axis: true
+  traj_file:
+    path: ./traj_files/traj_dict_period_11_s.npy
+    time_period: 11 # second
+
+# init state randomization
+state_randomization:
+  pos:
+    min: [-2., -2., 0.0]
+    max: [2., 2., 2.0]
+  vel:
+    min: 
+    max: 
+  acc:
+    min:
+    max:
+  ang: # in degree
+    min:
+    max: [10., 10., 180.]
+  ang_vel: # in degree
+    min:
+    max:
+  body_torque:
+    min:
+    max:
+  motor_angvel:
+    min:
+    max:
