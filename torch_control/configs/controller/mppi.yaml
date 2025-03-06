@@ -1,7 +1,7 @@
 name: mppi
 algo_name: mppi
 
-lam: 0.05 # temparature
+lam: 0.1 # temparature
 H: 40 # horizon
 N: 1024 # number of samples
 K_delay: 1
@@ -16,11 +16,13 @@ a_min: [0., -5., -5., -2.] # bounds of sampling action: [thrust, omega (unit: ra
 a_max: [0., 5., 5., 2.]
 
 # reward functions
-alpha_p: 10.0
+alpha_p_xy: 10.0
+alpha_p_z: 10.0
 alpha_w: 0.0
 alpha_a: 0.0
 alpha_R: 10.0
-alpha_v: 0.0
+alpha_v_xy: 0.0
+alpha_v_z: 0.0
 alpha_z : 0.0
 alpha_yaw : 0.0
 

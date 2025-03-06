@@ -61,7 +61,6 @@ class NPointedStar(BaseTrajectory):
             self.radius[idx] = torch.ones(num_trajs, dtype=torch.float32, device=self.device
                                           ) * self._radius
 
-        # thetas = torch.linspace(0, 2 * torch.pi, self.n_points)
         d_theta = 2 * torch.pi / self.n_points
         thetas = torch.arange(0, self.n_points, dtype=torch.float32, device=self.device) * d_theta
 
@@ -145,10 +144,14 @@ if __name__ == '__main__':
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))
     
     t = torch.arange(0, 40, 0.1, dtype=torch.float32)
-    ref = NPointedStar(t.shape[0], 5, speed=1.0, radius=1.0)
+    ref = NPointedStar(1, 5, speed=[0.5, 3.0], radius=2.0)
     
-    pos = ref.pos(t).cpu().numpy()
-    vel = ref.vel(t).cpu().numpy()
+    pos, vel = [], []
+    for tt in t:
+        pos.append(ref.pos(tt[None]))
+        vel.append(ref.vel(tt[None]))
+    pos = torch.cat(pos, dim=0).cpu().numpy()
+    vel = torch.cat(vel, dim=0).cpu().numpy()
 
     print(pos.shape)
     idx = 0
@@ -162,7 +165,7 @@ if __name__ == '__main__':
     plt.savefig(f'figs/star-{datetime}.png')
 
     # plot x/y/z and vx/vy/vz in 3 * 2 subplots
-    fig, axs = plt.subplots(3, 2, figsize=(10, 10))
+    fig, axs = plt.subplots(3, 2, figsize=(20, 10))
     axs[0,0].plot(t, pos[:,0])
     axs[0,0].set_xlabel('t')
     axs[0,0].set_ylabel('x')

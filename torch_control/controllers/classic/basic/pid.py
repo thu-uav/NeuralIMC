@@ -30,6 +30,8 @@ class PID(Controller):
         self.int_limit_z = self.cfg.int_limit_z
         self.kp_rot = self.cfg.kp_rot
         self.kp_yaw = self.cfg.kp_yaw
+        self.kp_rot_rp = self.cfg.kp_rot_rp
+        print(f"kp_pos_xy: {self.kp_pos_xy}, kp_pos_z: {self.kp_pos_z}, kd_pos_xy: {self.kd_pos_xy}, kd_pos_z: {self.kd_pos_z}, ki_pos_xy: {self.ki_pos_xy}, ki_pos_z: {self.ki_pos_z}, int_limit_xy: {self.int_limit_xy}, int_limit_z: {self.int_limit_z}, kp_rot: {self.kp_rot}, kp_yaw: {self.kp_yaw}")
         
         if ctrl_freq is None:
             self.ctrl_freq = self.envs.robots.control_freq
@@ -52,16 +54,20 @@ class PID(Controller):
         state = pid_obs.get('state') # QuadrotorState
         reference = pid_obs.get('reference') # Dict
         time = pid_obs.get('time') # torch.Tensor
-        
-        # self.update_dt(time)
-        
+
         pos, vel, quat = state.pos, state.vel, state.quat
         euler_est = ru.quat2euler(quat)
+
+        z_vec = torch.tensor([0, 0, 1]).float().to(self.device)
+        z_vec = z_vec.unsqueeze(0).expand_as(pos)
+
+        ref_euler = ru.quat2euler(reference.get('orientation', 
+                                                torch.tensor([1.0, 0.0, 0.0, 0.0]).to(quat.device).expand_as(quat)))
+        roll_ref, pitch_ref, yaw_ref = ref_euler[..., 0], ref_euler[..., 1], ref_euler[..., 2]
         
         pos_err = pos - reference.get('position', torch.zeros_like(pos))
         vel_err = vel - reference.get('linear_velocity', torch.zeros_like(vel))
-        yaw_err = euler_est[..., 2] - ru.quat2euler(reference.get('orientation', 
-                                                                  torch.zeros_like(quat)))[..., 2]
+        yaw_err = euler_est[..., 2] - yaw_ref
         if torch.any(yaw_err >=  torch.pi):
             yaw_err_wraped = torch.where(yaw_err >= torch.pi, yaw_err - 2.0 * torch.pi, yaw_err)
         elif torch.any(yaw_err < -torch.pi):
@@ -78,9 +84,6 @@ class PID(Controller):
         g_vec = torch.tensor([0, 0, self.g]).float().to(self.device)
         g_vec = g_vec.unsqueeze(0).expand_as(pos)
         
-        z_vec = torch.tensor([0, 0, 1]).float().to(self.device)
-        z_vec = z_vec.unsqueeze(0).expand_as(pos)
-
         acc_des = g_vec \
             + reference.get('acceleration', torch.zeros_like(pos))
         acc_des[..., :2] = acc_des[..., :2] \
@@ -94,14 +97,13 @@ class PID(Controller):
             
         u_des = ru.inv_rotate_vector(acc_des, quat, mode='quat')
         acc_des = torch.norm(u_des, dim=-1, keepdim=True)
-        
         rot_err = torch.linalg.cross(u_des / acc_des, z_vec)
-        omega_des = self.kp_rot * rot_err #-1.
+        omega_des = -1. * self.kp_rot * rot_err
         
         yaw_feedback_des = torch.zeros_like(omega_des)
-        yaw_feedback_des[..., 2] = self.kp_yaw * yaw_err_wraped - reference.get('heading_rate', torch.zeros_like(omega_des[..., 2]))
-        omega_des_yaw = ru.omega_rotate_from_euler(yaw_feedback_des, euler_est)
-        omega_des[..., 2] = (omega_des[..., 2] + omega_des_yaw[..., 2]) #* -1.
+        yaw_feedback_des[..., 2] = self.kp_yaw * (yaw_err_wraped - reference.get('heading_rate', torch.zeros_like(omega_des[..., 2])))
+        omega_des[..., 2] = omega_des[..., 2] - self.kp_yaw * yaw_err_wraped
+    
         
         self.count += 1
         self.v_prev = vel
@@ -223,7 +225,6 @@ class PID(Controller):
             return self.__call__(obs)
         
         def postprocess(actions: torch.Tensor) -> torch.Tensor:
-            # actions = self.envs.revise_action(actions)
             self.last_cmd = actions.clone()
             return actions.squeeze(0)
         

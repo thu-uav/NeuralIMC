@@ -89,6 +89,6 @@ dynamics_randomization:
     min:
     max:
   Kp:
-    scale: #[1., 10.]
+    scale: 
     min: 
     max: 

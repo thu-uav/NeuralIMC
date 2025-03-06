@@ -49,8 +49,6 @@ class MPPI(Controller):
         self.sim_k = 0.4
         self.time_step = 0
         
-        # self.action_min = torch.tensor(self.cfg.a_min).float().to(self.device)
-        # self.action_max = torch.tensor(self.cfg.a_max).float().to(self.device)
         self.action_min = torch.as_tensor(self.envs.action_space.low).to(self.device)
         self.action_max = torch.as_tensor(self.envs.action_space.high).to(self.device)
 
@@ -58,14 +56,14 @@ class MPPI(Controller):
             self.action_min[0] += self.envs.robots.g
             self.action_max[0] += self.envs.robots.g
 
-        # import pdb; pdb.set_trace()
-
         self.lam = self.cfg.lam
-        self.alpha_p = self.cfg.alpha_p
+        self.alpha_p_xy = self.cfg.alpha_p_xy
+        self.alpha_p_z = self.cfg.alpha_p_z
         self.alpha_w = self.cfg.alpha_w
         self.alpha_a = self.cfg.alpha_a
         self.alpha_R = self.cfg.alpha_R
-        self.alpha_v = self.cfg.alpha_v
+        self.alpha_v_xy = self.cfg.alpha_v_xy
+        self.alpha_v_z = self.cfg.alpha_v_z
         self.alpha_z = self.cfg.alpha_z
         self.alpha_yaw = self.cfg.alpha_yaw
 
@@ -94,7 +92,6 @@ class MPPI(Controller):
         
         pos, vel, quat = state.pos, state.vel, state.quat
         state_vec = torch.cat([pos, vel, quat], dim=-1)
-        # import pdb; pdb.set_trace()
         
         action, self.eval_action_mean, self.eval_u, self.eval_angvel = self.compute_action(state_vec, time, reference_fn, 
                                                             self.eval_action_mean, self.eval_u, self.eval_angvel)
@@ -157,7 +154,7 @@ class MPPI(Controller):
         action_mean_old = action_mean.clone()
         action_mean[..., :-1, :] = action_mean_old[..., 1:, :]
 
-        states, actions, u, angvel = self.rollout_states(state_vec, action_mean, u, angvel)
+        states, actions, u, angvel = self.rollout_states(state_vec, action_mean, u, angvel, external_acc)
 
         ref_time = time.unsqueeze(-1) + self.time_horizon # (num_envs, horizon)
         ref_states = []
@@ -168,10 +165,12 @@ class MPPI(Controller):
         # ref_states = ref_states.unsqueeze(1) # (num_envs, 1, horizon, state_dim)
 
         pos_err = states[..., POS_SLICE] - ref_states[..., POS_SLICE] # (num_envs, num_samples, horizon, 3)
-
-        cost = self.alpha_p * torch.sum(torch.linalg.norm(pos_err, dim=-1), dim=-1) + \
-            self.alpha_R * torch.sum(quat_distance(states[..., QUAT_SLICE], ref_states[..., QUAT_SLICE]), dim=-1)
-        # import pdb; pdb.set_trace()
+        vel_err = states[..., VEL_SLICE] - ref_states[..., VEL_SLICE] # (num_envs, num_samples, horizon, 3)
+        cost = self.alpha_p_xy * torch.sum(torch.linalg.norm(pos_err[..., :2], dim=-1), dim=-1) + \
+            self.alpha_p_z * torch.sum(torch.abs(pos_err[..., 2]), dim=-1) + \
+            self.alpha_R * torch.sum(quat_distance(states[..., QUAT_SLICE], ref_states[..., QUAT_SLICE]), dim=-1) + \
+            self.alpha_v_xy * torch.sum(torch.linalg.norm(vel_err[..., :2], dim=-1), dim=-1) + \
+            self.alpha_v_z * torch.sum(torch.abs(vel_err[..., 2]), dim=-1)
         
         cost = cost * self.ctrl_dt # (num_envs, num_samples)
         cost = cost - torch.min(cost, dim=-1, keepdim=True)[0] # (num_envs, num_samples)
@@ -211,8 +210,6 @@ class MPPI(Controller):
         actions = torch.normal(
             mean=action_mean.unsqueeze(1).repeat(1, self.num_samples, 1, 1), 
             std=self.sample_std) # (num_envs, num_samples, horizon, 4)
-        # import pickle
-        # actions = pickle.load(open('/home/fengg/workspace/clean_dynamics/scripts/eval/test.pkl', 'rb'))
         
         u = u + self.sim_k * (actions[..., 0] / self.unit_mass - u) # (num_envs, num_samples, horizon)
         angvel = angvel + self.sim_k * (actions[..., 1:] - angvel) # (num_envs, num_samples, horizon, 3)

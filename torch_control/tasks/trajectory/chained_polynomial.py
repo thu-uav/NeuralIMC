@@ -214,23 +214,21 @@ class ChainedPolynomial(BaseTrajectory):
     
 
 if __name__ == "__main__":
-    ref = ChainedPolynomial(10,scale=1.0, min_dt=2.0, max_dt=5.0, degree=5)
+    ref = ChainedPolynomial(1, min_dt=1.5, max_dt=4.0, degree=5, use_y=True)
 
-    t = torch.stack([torch.arange(0, 10, 0.02) for _ in range(10)], dim=0)
-
-    # import pdb; pdb.set_trace()
+    t = torch.arange(0, 40, 0.1, dtype=torch.float32)
 
     pos = []
     vel = []
     acc = []
     jerk = []
     snap = []
-    for ti in range(t.shape[1]):
-        pos.append(ref.pos(t[:, ti]))
-        vel.append(ref.vel(t[:, ti]))
-        acc.append(ref.acc(t[:, ti]))
-        jerk.append(ref.jerk(t[:, ti]))
-        snap.append(ref.snap(t[:, ti]))
+    for tt in t:
+        pos.append(ref.pos(tt[None]))
+        vel.append(ref.vel(tt[None]))
+        acc.append(ref.acc(tt[None]))
+        jerk.append(ref.jerk(tt[None]))
+        snap.append(ref.snap(tt[None]))
 
     pos = torch.stack(pos, dim=1).cpu().numpy()
     vel = torch.stack(vel, dim=1).cpu().numpy()
@@ -238,7 +236,7 @@ if __name__ == "__main__":
     jerk = torch.stack(jerk, dim=1).cpu().numpy()
     snap = torch.stack(snap, dim=1).cpu().numpy()
 
-    plot_idx = 5
+    plot_idx = 0
     import matplotlib.pyplot as plt
     import time
     
@@ -252,22 +250,13 @@ if __name__ == "__main__":
     ax.set_zlabel('z')
     plt.savefig(f'figs/chainedpoly-{datetime}.png')
 
-    fig, axs = plt.subplots(3, 5, figsize=(50, 10))
+    fig, axs = plt.subplots(3, 2, figsize=(20, 10))
     for i in range(3):
-        axs[i,0].plot(t[plot_idx], pos[plot_idx, :,i])
+        axs[i,0].plot(t, pos[plot_idx, :,i])
         axs[i,0].set_xlabel('t')
         axs[i,0].set_ylabel('x')
-        axs[i,1].plot(t[plot_idx], vel[plot_idx, :,i])
+        axs[i,1].plot(t, vel[plot_idx, :,i])
         axs[i,1].set_xlabel('t')
         axs[i,1].set_ylabel('v')
-        axs[i,2].plot(t[plot_idx], acc[plot_idx, :,i])
-        axs[i,2].set_xlabel('t')
-        axs[i,2].set_ylabel('a')
-        axs[i,3].plot(t[plot_idx], jerk[plot_idx, :,i])
-        axs[i,3].set_xlabel('t')
-        axs[i,3].set_ylabel('j')
-        axs[i,4].plot(t[plot_idx], snap[plot_idx, :,i])
-        axs[i,4].set_xlabel('t')
-        axs[i,4].set_ylabel('s')
     plt.tight_layout()
     plt.savefig(f'figs/chainedpoly_xyz-{datetime}.png')

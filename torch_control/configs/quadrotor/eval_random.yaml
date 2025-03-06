@@ -40,7 +40,7 @@ max_thrust2weight: 2.9
 # Control parameters
 control_mode: 'ctbr'
 control_freq: 50
-Kp: [37., 37., 11.] # [371., 371., 11.] # 
+Kp: [37., 37., 11.]
 
 # dynamics randomization
 dynamics_randomization:

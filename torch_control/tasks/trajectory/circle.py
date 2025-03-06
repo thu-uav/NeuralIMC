@@ -171,25 +171,17 @@ if __name__ == '__main__':
     
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))
     
-    ref = Circle(num_trajs=1, radius=0.5, height=0.0, period=5)
-    t = torch.stack([torch.arange(0, 20, 0.1) for _ in range(1)], dim=0)
-    pos = ref.pos(t).squeeze(0).cpu().numpy()
-    vel = ref.vel(t).squeeze(0).cpu().numpy()
-    acc = ref.acc(t).squeeze(0).cpu().numpy()
-    jerk = ref.jerk(t).squeeze(0).cpu().numpy()
-    snap = ref.snap(t).squeeze(0).cpu().numpy()
-    quat = ref.quat(t).squeeze(0)
-    ang = ru.quat2euler(quat)
-    ang = ang.cpu().numpy()
-    angvel = ref.angvel(t).squeeze(0).cpu().numpy()
-    yaw = ref.yaw(t).squeeze(0) #.cpu().numpy()
-    yawvel = ref.yawvel(t).squeeze(0) #.cpu().numpy()
-    yawacc = ref.yawacc(t).squeeze(0) #.cpu().numpy()
-    yaw_data = torch.stack([yaw, yawvel, yawacc], dim=-1).cpu().numpy()
+    ref = Circle(num_trajs=1, radius=0.5, height=0.0, period=2)
+    t = torch.arange(0, 40, 0.1, dtype=torch.float32)
+
+    pos = []
+    vel = []
+    for tt in t:
+        pos.append(ref.pos(tt[None]))
+        vel.append(ref.vel(tt[None]))
+    pos = torch.cat(pos, dim=0).cpu().numpy()
+    vel = torch.cat(vel, dim=0).cpu().numpy()
     t = t.squeeze(0).cpu().numpy()
-    
-    print(pos.shape, vel.shape, acc.shape, jerk.shape, snap.shape, quat.shape, angvel.shape, yaw.shape, yawvel.shape, yawacc.shape)
-    # import pdb; pdb.set_trace()
 
     # plot 3D traj and save
     fig = plt.figure()
@@ -201,7 +193,7 @@ if __name__ == '__main__':
     plt.savefig(f'figs/circle-{datetime}.png')
     
     # plot x/y/z and vx/vy/vz in 3 * 2 subplots
-    fig, axs = plt.subplots(3, 8, figsize=(80, 10))
+    fig, axs = plt.subplots(3, 2, figsize=(20, 10))
     for i in range(3):
         axs[i,0].plot(t, pos[:,i])
         axs[i,0].set_xlabel('t')
@@ -209,24 +201,6 @@ if __name__ == '__main__':
         axs[i,1].plot(t, vel[:,i])
         axs[i,1].set_xlabel('t')
         axs[i,1].set_ylabel('v')
-        axs[i,2].plot(t, acc[:,i])
-        axs[i,2].set_xlabel('t')
-        axs[i,2].set_ylabel('a')
-        axs[i,3].plot(t, jerk[:,i])
-        axs[i,3].set_xlabel('t')
-        axs[i,3].set_ylabel('j')
-        axs[i,4].plot(t, snap[:,i])
-        axs[i,4].set_xlabel('t')
-        axs[i,4].set_ylabel('s')
-        axs[i,5].plot(t, ang[:,i])
-        axs[i,5].set_xlabel('t')
-        axs[i,5].set_ylabel('ang')
-        axs[i,6].plot(t, angvel[:,i])
-        axs[i,6].set_xlabel('t')
-        axs[i,6].set_ylabel('angvel')
-        axs[i,7].plot(t, yaw_data[:,i])
-        axs[i,7].set_xlabel('t')
-        axs[i,7].set_ylabel('yaw')
     
     plt.tight_layout()
     plt.savefig(f'figs/circle_xyz-{datetime}.png')

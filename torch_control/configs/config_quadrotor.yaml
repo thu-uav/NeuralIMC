@@ -2,7 +2,6 @@ defaults:
   - quadrotor: train_random
   - controller: ours
   - task: track_zigzag
-  - task_deploy: ${oc.select:..task}
   - predictive_model
   - _self_
 
