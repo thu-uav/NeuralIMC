@@ -15,7 +15,6 @@
 
 ```bash
 conda create -n torchctrl python=3.9
-cd torch_control
 conda activate torchctrl
 pip install -e .
 ```
