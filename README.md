@@ -46,10 +46,10 @@ Check [this repo](https://github.com/UltronAI/NeuralIMC-Quadruped) for more deta
 
 ## Citation
 
-If you find our codebase or our proposed trick (predictive error feedback) useful, please cite our paper:
+If you find our codebase or our proposed technique (predictive error feedback) useful, please cite our paper:
 
 ```bibtex
-@ARTICLE{11012678,
+@ARTICLE{gao2025neuralimc,
   author={Gao, Feng and Yu, Chao and Wang, Yu and Wu, Yi},
   journal={IEEE Robotics and Automation Letters}, 
   title={Neural Internal Model Control: Learning a Robust Control Policy Via Predictive Error Feedback}, 
