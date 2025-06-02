@@ -1,14 +1,11 @@
 # Neural Internal Model Control
 
-## <font><div align='center' > [[📜 arXiv Paper](https://github.com/thu-uav/NeuralIMC)]  [[📹 Supplementary Video](https://www.youtube.com/watch?v=7MChzWLqbZk&ab_channel=FengGao)] </div> </font>
+<!-- ## <font><div align='center' > [[📜 arXiv Paper](https://arxiv.org/abs/2411.13079)]  [[📹 Supplementary Video](https://www.youtube.com/watch?v=7MChzWLqbZk&ab_channel=FengGao)] </div> </font> -->
+[![arXiv](https://img.shields.io/badge/arXiv-2411.13079-red.svg)](https://arxiv.org/abs/2411.13079)
+[![Video](https://img.shields.io/badge/YouTube-Supplementary.Video-green.svg)](https://www.youtube.com/watch?v=7MChzWLqbZk)
+[![Code](https://img.shields.io/badge/Code-Quadruped-blue.svg)](https://github.com/UltronAI/NeuralIMC-Quadruped)
 
 ![Overview of Neural-IMC](assets/overview.png)
-
----
-## TODO
-
-- [ ] Clean codes and update README
-- [ ] Codes for experiments on quadrupeds
 
 ## Installation
 
@@ -39,4 +36,27 @@ conda activate torchctrl && cd scripts
 python run_quadrotor.py
 # To run without wandb logging, use the following command:
 python run_quadrotor.py wandb.mode=disabled
+```
+
+Refer to `scripts/train/shell_scripts` for more experiment scripts.
+
+## Quadruped experiments
+
+Check [this repo](https://github.com/UltronAI/NeuralIMC-Quadruped) for more details.
+
+## Citation
+
+If you find our codebase or our proposed trick (predictive error feedback) useful, please cite our paper:
+
+```bibtex
+@ARTICLE{11012678,
+  author={Gao, Feng and Yu, Chao and Wang, Yu and Wu, Yi},
+  journal={IEEE Robotics and Automation Letters}, 
+  title={Neural Internal Model Control: Learning a Robust Control Policy Via Predictive Error Feedback}, 
+  year={2025},
+  volume={10},
+  number={7},
+  pages={6848-6855},
+  keywords={Predictive models;Robots;Quadrotors;Adaptation models;Legged locomotion;Mathematical models;Training;Robustness;Robust control;Adaptive control;Robust control;reinforcement learning (RL);sensorimotor learning},
+  doi={10.1109/LRA.2025.3573169}}
 ```
