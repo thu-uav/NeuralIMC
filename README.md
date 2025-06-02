@@ -5,7 +5,9 @@
 [![Video](https://img.shields.io/badge/YouTube-Supplementary.Video-green.svg)](https://www.youtube.com/watch?v=7MChzWLqbZk)
 [![Code](https://img.shields.io/badge/Code-Quadruped-blue.svg)](https://github.com/UltronAI/NeuralIMC-Quadruped)
 
-![Overview of Neural-IMC](assets/overview.png)
+This repository contains the code for quadrotor experiments in our RA-L paper [Neural Internal Model Control: Learning a Robust Control Policy Via Predictive Error Feedback](https://arxiv.org/abs/2411.13079). We release our codes for the quadruped experiments in [a separate repository](https://github.com/UltronAI/NeuralIMC-Quadruped).
+
+<img src="assets/overview.png" alt="Overview of Neural-IMC" width="700">
 
 ## Installation
 
